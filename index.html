@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>ЖЕЛАЮЩИЕ</title>
+    <style>
+        body {
+            /* Вырвиглазный градиент с анимацией */
+            background: linear-gradient(45deg, #ff00ff, #00ff00, #ff0000, #ffff00, #00ffff);
+            background-size: 400% 400%;
+            animation: gradientBg 2s ease infinite;
+            color: #fff;
+            font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientBg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Эмуляция WordArt дугой */
+        .wordart {
+            position: relative;
+            height: 200px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 50px;
+        }
+
+        .wordart-text {
+            font-size: 45px;
+            font-weight: 900;
+            text-transform: uppercase;
+            fill: #ffff00;
+            stroke: #ff0000;
+            stroke-width: 2px;
+            filter: drop-shadow(5px 5px 0px #000);
+        }
+
+        /* Список имен */
+        .list-container {
+            background: rgba(0, 0, 0, 0.8);
+            border: 5px double #00ff00;
+            padding: 30px;
+            margin-top: -20px;
+            box-shadow: 10px 10px 0px #ff00ff;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 24px;
+        }
+
+        th {
+            color: #00ffff;
+            text-decoration: underline;
+            padding-bottom: 15px;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px dashed #ffff00;
+        }
+
+        .name { color: #ff00ff; font-weight: bold; }
+        .date { color: #00ff00; font-family: monospace; }
+
+        marquee {
+            font-size: 30px;
+            background: #000;
+            color: #ff0000;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <marquee scrollamount="20">КТО ПОЕДЕТ В ХРОМ В ЭТОТ РАЗ БЛЯТЬ</marquee>
+
+    <div class="wordart">
+        <svg viewBox="0 0 1000 300" width="1000">
+            <path id="curve" d="M 100,250 Q 500,50 900,250" fill="transparent" />
+            <text class="wordart-text">
+                <textPath xlink:href="#curve" startOffset="50%" text-anchor="middle">
+                    ДОСКА ПОЧЁТА
+                </textPath>
+            </text>
+        </svg>
+    </div>
+
+    <div class="list-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ПОДОЗРЕВАЕМЫЙ</th>
+                    <th>ДАТА ПРЕСТУПЛЕНИЯ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="name">Василий</td>
+                    <td class="date">09.04.2026</td>
+                </tr>
+                <tr>
+                    <td class="name">Игорь</td>
+                    <td class="date">24.04.2026</td>
+                </tr>
+                <tr>
+                    <td class="name">Аскар</td>
+                    <td class="date">20.04.2026</td>
+                </tr>
+                <tr>
+                    <td class="name">Ержан</td>
+                    <td class="date">21.04.2026</td>
+                </tr>
+                <tr>
+                    <td class="name">Алмат</td>
+                    <td class="date">???</td>
+                </tr>
+                <tr>
+                    <td class="name">Вадим</td>
+                    <td class="date">???</td>
+                </tr>
+                <tr>
+                    <td class="name">Линар</td>
+                    <td class="date">???</td>
+                </tr>
+                <tr>
+                    <td class="name">Марат</td>
+                    <td class="date">???</td>
+                </tr>
+                <tr>
+                    <td class="name">Еркiн</td>
+                    <td class="date">???</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <br>
+    <img src="https://web.archive.org/web/20091027005003/http://geocities.com/Tokyo/5103/undercon.gif" alt="Under Construction">
+
+</body>
+</html>
