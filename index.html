@@ -2,155 +2,398 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>ЖЕЛАЮЩИЕ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ретро Танчики (Battle City Clone)</title>
     <style>
         body {
-            /* Вырвиглазный градиент с анимацией */
-            background: linear-gradient(45deg, #ff00ff, #00ff00, #ff0000, #ffff00, #00ffff);
-            background-size: 400% 400%;
-            animation: gradientBg 2s ease infinite;
-            color: #fff;
-            font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+            background-color: #222;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin: 0;
-            padding: 20px;
-            overflow-x: hidden;
-        }
-
-        @keyframes gradientBg {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* Эмуляция WordArt дугой */
-        .wordart {
-            position: relative;
-            height: 200px;
-            width: 100%;
-            display: flex;
             justify-content: center;
-            margin-top: 50px;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
         }
-
-        .wordart-text {
-            font-size: 45px;
-            font-weight: 900;
-            text-transform: uppercase;
-            fill: #ffff00;
-            stroke: #ff0000;
-            stroke-width: 2px;
-            filter: drop-shadow(5px 5px 0px #000);
-        }
-
-        /* Список имен */
-        .list-container {
-            background: rgba(0, 0, 0, 0.8);
-            border: 5px double #00ff00;
-            padding: 30px;
-            margin-top: -20px;
-            box-shadow: 10px 10px 0px #ff00ff;
-            max-width: 600px;
-            width: 90%;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        h1 {
+            margin: 5px 0;
             font-size: 24px;
+            color: #ffcc00;
+            text-shadow: 2px 2px black;
         }
-
-        th {
-            color: #00ffff;
-            text-decoration: underline;
-            padding-bottom: 15px;
+        #gameContainer {
+            position: relative;
+            border: 4px solid #555;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
-
-        td {
-            padding: 10px;
-            border-bottom: 1px dashed #ffff00;
+        canvas {
+            background-color: #000;
+            display: block;
         }
-
-        .name { color: #ff00ff; font-weight: bold; }
-        .date { color: #00ff00; font-family: monospace; }
-
-        marquee {
-            font-size: 30px;
-            background: #000;
-            color: #ff0000;
-            font-weight: bold;
-            margin-bottom: 20px;
+        .info {
+            margin-top: 10px;
+            font-size: 14px;
+            text-align: center;
+            color: #aaa;
         }
     </style>
 </head>
 <body>
 
-    <marquee scrollamount="20">ПОЗДРАВЛЯЕМ ЛИНАРА С РОЖДЕНИЕМ СЫНА</marquee>
-
-    <div class="wordart">
-        <svg viewBox="0 0 1000 300" width="1000">
-            <path id="curve" d="M 100,250 Q 500,50 900,250" fill="transparent" />
-            <text class="wordart-text">
-                <textPath xlink:href="#curve" startOffset="50%" text-anchor="middle">
-                    ДОСКА ПОЧЁТА
-                </textPath>
-            </text>
-        </svg>
+    <h1>BATTLE CITY (HTML5)</h1>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="520" height="520"></canvas>
+    </div>
+    <div class="info">
+        Управление: <b>Стрелки</b> — движение | <b>Пробел</b> — огонь<br>
+        Защитите Орла (Штаб) внизу по центру!
     </div>
 
-    <div class="list-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>ПОДОЗРЕВАЕМЫЙ</th>
-                    <th>ДАТА ПРЕСТУПЛЕНИЯ</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="name">Василий</td>
-                    <td class="date">09.04.2026</td>
-                </tr>
-                <tr>
-                    <td class="name">Игорь</td>
-                    <td class="date">15.05.2026</td>
-                </tr>
-                <tr>
-                    <td class="name">Аскар</td>
-                    <td class="date">20.04.2026</td>
-                </tr>
-                <tr>
-                    <td class="name">Ержан</td>
-                    <td class="date">21.04.2026</td>
-                </tr>
-                <tr>
-                    <td class="name">Алмат</td>
-                    <td class="date">14.05.2026</td>
-                </tr>
-                <tr>
-                    <td class="name">Вадим</td>
-                    <td class="date">???</td>
-                </tr>
-                <tr>
-                    <td class="name">Линар</td>
-                    <td class="date">???</td>
-                </tr>
-                <tr>
-                    <td class="name">Марат</td>
-                    <td class="date">02.05.2026</td>
-                </tr>
-                <tr>
-                    <td class="name">Еркiн</td>
-                    <td class="date">05.05.2026</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
-    <br>
-    <img src="https://web.archive.org/web/20091027005003/http://geocities.com/Tokyo/5103/undercon.gif" alt="Under Construction">
+// Размеры сетки
+const TILE_SIZE = 40;
+const COLS = 13;
+const ROWS = 13;
 
+// Типы блоков
+const T_EMPTY = 0;
+const T_BRICK = 1;
+const T_STEEL = 2;
+const T_BASE  = 3;
+
+// Карта уровня (13х13)
+// 1 - Кирпич, 2 - Сталь, 3 - База (Орел)
+let map = [
+    [0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,1,0,1,0,1,2,1,0,1,0,1,0],
+    [0,1,0,1,0,1,0,1,0,1,0,1,0],
+    [0,1,0,1,0,0,0,0,0,1,0,1,0],
+    [0,2,0,2,0,1,0,1,0,2,0,2,0],
+    [0,0,0,0,0,1,1,1,0,0,0,0,0],
+    [1,0,1,1,0,0,0,0,0,1,1,0,1],
+    [2,0,0,1,0,2,0,2,0,1,0,0,2],
+    [0,0,0,1,0,0,0,0,0,1,0,0,0],
+    [0,1,0,1,1,1,0,1,1,1,0,1,0],
+    [0,1,0,0,0,0,0,0,0,0,0,1,0],
+    [0,1,0,1,0,1,1,1,0,1,0,1,0],
+    [0,0,0,1,0,1,3,1,0,1,0,0,0]
+];
+
+// Направления
+const DIR_UP = 0;
+const DIR_RIGHT = 1;
+const DIR_DOWN = 2;
+const DIR_LEFT = 3;
+
+// Состояние игры
+let gameOver = false;
+let victory = false;
+let score = 0;
+let enemiesDefeated = 0;
+const TOTAL_ENEMIES_TO_WIN = 10;
+
+// Класс Танка (базовый)
+class Tank {
+    constructor(x, y, dir, isEnemy) {
+        this.x = x;
+        this.y = y;
+        this.w = 34;
+        this.h = 34;
+        this.speed = isEnemy ? 1.5 : 2.5;
+        this.dir = dir;
+        this.isEnemy = isEnemy;
+        this.cooldown = 0;
+        this.color = isEnemy ? '#ff3333' : '#00cc00';
+    }
+
+    draw() {
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.w, this.h);
+        
+        // Рисуем дуло в зависимости от направления
+        ctx.fillStyle = '#ffffff';
+        let barrelW = 6, barrelH = 16;
+        if (this.dir === DIR_UP) {
+            ctx.fillRect(this.x + this.w/2 - barrelW/2, this.y - barrelH/2, barrelW, barrelH);
+        } else if (this.dir === DIR_DOWN) {
+            ctx.fillRect(this.x + this.w/2 - barrelW/2, this.y + this.h - barrelH/2, barrelW, barrelH);
+        } else if (this.dir === DIR_LEFT) {
+            ctx.fillRect(this.x - barrelH/2, this.y + this.h/2 - barrelW/2, barrelH, barrelW);
+        } else if (this.dir === DIR_RIGHT) {
+            ctx.fillRect(this.x + this.w - barrelH/2, this.y + this.h/2 - barrelW/2, barrelH, barrelW);
+        }
+    }
+
+    move(dir) {
+        this.dir = dir;
+        let nextX = this.x;
+        let nextY = this.y;
+
+        if (dir === DIR_UP) nextY -= this.speed;
+        if (dir === DIR_DOWN) nextY += this.speed;
+        if (dir === DIR_LEFT) nextX -= this.speed;
+        if (dir === DIR_RIGHT) nextX += this.speed;
+
+        if (!this.checkCollision(nextX, nextY)) {
+            this.x = nextX;
+            this.y = nextY;
+        } else if (this.isEnemy) {
+            // Если враг врезался, меняем случайным образом направление
+            this.dir = Math.floor(Math.random() * 4);
+        }
+    }
+
+    checkCollision(nx, ny) {
+        // Границы экрана
+        if (nx < 0 || nx + this.w > canvas.width || ny < 0 || ny + this.h > canvas.height) {
+            return true;
+        }
+        // Коллизия с тайлами карты
+        let x1 = Math.floor(nx / TILE_SIZE);
+        let y1 = Math.floor(ny / TILE_SIZE);
+        let x2 = Math.floor((nx + this.w) / TILE_SIZE);
+        let y2 = Math.floor((ny + this.h) / TILE_SIZE);
+
+        for (let r = y1; r <= y2; r++) {
+            for (let c = x1; c <= x2; c++) {
+                if (map[r] && map[r][c] !== T_EMPTY) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    shoot() {
+        if (this.cooldown <= 0) {
+            let bx = this.x + this.w/2;
+            let by = this.y + this.h/2;
+            bullets.push(new Bullet(bx, by, this.dir, this.isEnemy));
+            this.cooldown = this.isEnemy ? 60 : 30; // Кулдаун стрельбы
+        }
+    }
+
+    update() {
+        if (this.cooldown > 0) this.cooldown--;
+    }
+}
+
+// Класс Пули
+class Bullet {
+    constructor(x, y, dir, isEnemy) {
+        this.x = x;
+        this.y = y;
+        this.r = 3;
+        this.speed = 5;
+        this.dir = dir;
+        this.isEnemy = isEnemy;
+        this.active = true;
+    }
+
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffff00';
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    update() {
+        if (this.dir === DIR_UP) this.y -= this.speed;
+        if (this.dir === DIR_DOWN) this.y += this.speed;
+        if (this.dir === DIR_LEFT) this.x -= this.speed;
+        if (this.dir === DIR_RIGHT) this.x += this.speed;
+
+        // Вылет за экран
+        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+            this.active = false;
+            return;
+        }
+
+        // Попадание в блоки
+        let tx = Math.floor(this.x / TILE_SIZE);
+        let ty = Math.floor(this.y / TILE_SIZE);
+
+        if (map[ty] && map[ty][tx] !== T_EMPTY) {
+            let tile = map[ty][tx];
+            if (tile === T_BRICK) {
+                map[ty][tx] = T_EMPTY; // Разрушаем кирпич
+                this.active = false;
+            } else if (tile === T_STEEL) {
+                this.active = false; // Сталь не разрушается
+            } else if (tile === T_BASE) {
+                map[ty][tx] = T_EMPTY;
+                gameOver = true; // Базу уничтожили — Гейм Овер
+                this.active = false;
+            }
+        }
+    }
+}
+
+// Инициализация объектов
+const player = new Tank(4 * TILE_SIZE + 4, 12 * TILE_SIZE + 4, DIR_UP, false);
+let enemies = [];
+let bullets = [];
+
+// Управление кнопками
+const keys = {};
+window.addEventListener('keydown', e => keys[e.code] = true);
+window.addEventListener('keyup', e => keys[e.code] = false);
+
+// Спавн врагов
+let spawnTimer = 0;
+function spawnEnemy() {
+    if (enemies.length < 3 && (enemiesDefeated + enemies.length) < TOTAL_ENEMIES_TO_WIN) {
+        // Три точки спавна сверху
+        let spawnPoints = [0, 6, 12];
+        let col = spawnPoints[Math.floor(Math.random() * spawnPoints.length)];
+        enemies.push(new Tank(col * TILE_SIZE + 4, 4, DIR_DOWN, true));
+    }
+}
+
+// Отрисовка карты
+function drawMap() {
+    for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+            if (map[r][c] === T_BRICK) {
+                ctx.fillStyle = '#a04000'; // Кирпичный цвет
+                ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                // Сеточка кирпичей
+                ctx.strokeStyle = '#000';
+                ctx.strokeRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            } else if (map[r][c] === T_STEEL) {
+                ctx.fillStyle = '#cccccc'; // Стальной цвет
+                ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                ctx.fillStyle = '#888888';
+                ctx.fillRect(c * TILE_SIZE + 5, r * TILE_SIZE + 5, TILE_SIZE - 10, TILE_SIZE - 10);
+            } else if (map[r][c] === T_BASE) {
+                // Орел / Штаб
+                ctx.fillStyle = '#ffcc00';
+                ctx.beginPath();
+                ctx.moveTo(c * TILE_SIZE + 20, r * TILE_SIZE + 5);
+                ctx.lineTo(c * TILE_SIZE + 5, r * TILE_SIZE + 35);
+                ctx.lineTo(c * TILE_SIZE + 35, r * TILE_SIZE + 35);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+    }
+}
+
+// Главный игровой цикл
+function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (gameOver) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#ff3333';
+        ctx.font = 'bold 40px Courier New';
+        ctx.textAlign = 'center';
+        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+        return;
+    }
+
+    if (victory) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#33ff33';
+        ctx.font = 'bold 40px Courier New';
+        ctx.textAlign = 'center';
+        ctx.fillText("VICTORY!", canvas.width / 2, canvas.height / 2);
+        return;
+    }
+
+    // 1. Управление игроком
+    player.update();
+    if (keys['ArrowUp']) player.move(DIR_UP);
+    else if (keys['ArrowDown']) player.move(DIR_DOWN);
+    else if (keys['ArrowLeft']) player.move(DIR_LEFT);
+    else if (keys['ArrowRight']) player.move(DIR_RIGHT);
+    
+    if (keys['Space']) player.shoot();
+
+    // 2. Спавн и логика врагов
+    spawnTimer++;
+    if (spawnTimer > 120) {
+        spawnEnemy();
+        spawnTimer = 0;
+    }
+
+    enemies.forEach((enemy, eIndex) => {
+        enemy.update();
+        
+        // Случайное движение ИИ
+        if (Math.random() < 0.02) {
+            enemy.dir = Math.floor(Math.random() * 4);
+        }
+        enemy.move(enemy.dir);
+
+        // Случайная стрельба ИИ
+        if (Math.random() < 0.015) {
+            enemy.shoot();
+        }
+
+        // Коллизия пули игрока с врагом
+        bullets.forEach((bullet, bIndex) => {
+            if (!bullet.isEnemy && bullet.active) {
+                if (bullet.x > enemy.x && bullet.x < enemy.x + enemy.w &&
+                    bullet.y > enemy.y && bullet.y < enemy.y + enemy.h) {
+                    bullet.active = false;
+                    enemies.splice(eIndex, 1);
+                    enemiesDefeated++;
+                    score += 100;
+
+                    if (enemiesDefeated >= TOTAL_ENEMIES_TO_WIN) {
+                        victory = true;
+                    }
+                }
+            }
+        });
+
+        // Коллизия врага с игроком
+        if (enemy.x < player.x + player.w && enemy.x + enemy.w > player.x &&
+            enemy.y < player.y + player.h && enemy.y + enemy.h > player.y) {
+            gameOver = true;
+        }
+    });
+
+    // 3. Обновление пуль
+    bullets = bullets.filter(b => b.active);
+    bullets.forEach(bullet => {
+        bullet.update();
+        
+        // Попадание вражеской пули в игрока
+        if (bullet.isEnemy && bullet.active) {
+            if (bullet.x > player.x && bullet.x < player.x + player.w &&
+                bullet.y > player.y && bullet.y < player.y + player.h) {
+                gameOver = true;
+            }
+        }
+    });
+
+    // 4. Отрисовка всего
+    drawMap();
+    player.draw();
+    enemies.forEach(enemy => enemy.draw());
+    bullets.forEach(bullet => bullet.draw());
+
+    // UI Счётчик сверху
+    ctx.fillStyle = '#fff';
+    ctx.font = '16px Courier New';
+    ctx.textAlign = 'left';
+    ctx.fillText(`СЧЁТ: ${score} | ОСТАЛОСЬ ВРАГОВ: ${TOTAL_ENEMIES_TO_WIN - enemiesDefeated}`, 10, 25);
+
+    requestAnimationFrame(gameLoop);
+}
+
+// Старт игры
+gameLoop();
+</script>
 </body>
 </html>
